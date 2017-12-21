@@ -1,0 +1,55 @@
+
+#netmaku {
+    width: 100%;
+    height: 100%;
+}
+
+#netmaku .screen {
+    width: 100%;
+    height: windowHeight;
+    top: 0px;
+    right: 0px;
+    position: fixed;
+    z-index: 10000;
+    /* Click through */
+    pointer-events: none;
+}
+
+#netmaku .screen .top {
+  /*  background: rgba(0,0,0,.3);*/
+    z-index: 10002;
+    position: relative;
+    width: 100%;
+    height: 30px;
+}
+
+#netmaku .screen .mask {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    opacity: 1;
+    filter: alpha(opacity: 1);
+}
+
+#netmaku .screen .mask div{
+    /* black border */
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+    letter-spacing: 1px;
+}
+
+#netmaku .screen div.mono {
+    font-family: monospace !important;
+}
+
+#netmaku .screen > div > div{
+    font-family: "Microsoft Yahei","微软雅黑", STXihei, "华文细黑", arial, sans-serif;
+    position: absolute;
+    font-size: 18px;
+    font-weight: bold;
+    /* no line break */
+    white-space: pre;
+    display: inline-block;
+    line-height: 20px;
+    z-index: 10001;
+    background: none;
+}

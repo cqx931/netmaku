@@ -1,0 +1,57 @@
+<html>
+<meta charset="UTF-8">
+
+<head>
+    <link rel="stylesheet" href="css/menu.css">
+</head>
+
+<body>
+    <div class="settings">
+        <label class="checkGroup" id="settingBackground">Background overlay
+            <input type="checkbox">
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkGroup" id="settingTopComments">Hide All Comments
+            <input type="checkbox">
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkGroup" id="settingTopComments">Hide Top Comments
+            <input type="checkbox">
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkGroup" id="settingTopComments">Hide Scrolling Comments
+            <input type="checkbox">
+            <span class="checkmark"></span>
+        </label>
+        <label class="checkGroup" id="settingTopComments">Hide Bottom Comments
+            <input type="checkbox">
+            <span class="checkmark"></span>
+        </label>
+        <ul>
+            <li>Opacity <span id="currentValue"></span>
+                <div id="slidecontainer">
+                    <input type="range" min="1" max="100" value="100" class="slider" id="opacity">
+                   
+                </div>
+            </li>
+            <li></li>
+            <li></li>
+        </ul>
+        <div title="hide" class="button">
+            <span>hide</span>
+        </div>
+        <!-- <div title="disable" class="button hide">
+            <span>⃠</span>
+        </div> -->
+        <div title="show" class="button hide">
+        </div>
+    </div>
+    <a href="">
+        <p id="logo">net://
+            <br>maku</p>
+    </a>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/menu.js"></script>
+</body>
+
+</html>
