@@ -1,4 +1,6 @@
-# netmaku
+<a href="http://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="gpl license"></a>
+
+# net://maku
 
 <div align="left">
   <a href="http://chenqianxun.com/netMaku">
