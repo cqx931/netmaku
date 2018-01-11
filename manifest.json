@@ -1,7 +1,7 @@
 {
     "name": "net://maku",
     "description": "A browser extension that brings invisible machine reading process to the surface, blending it with the content that are intended to be read by a human reader.",
-    "version": "0.0.1",
+    "version": "1.0.01",
     "author": "Qianxun Chen",
     "background":
     {
