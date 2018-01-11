@@ -1,6 +1,6 @@
 {
     "name": "net://maku",
-    "description": "A browser extension that uses the volatile danmaku to bridge the visible content and the hidden code in the browser window, blending the boundary between human reading and machine reading.",
+    "description": "A browser extension that brings invisible machine reading process to the surface, blending it with the content that are intended to be read by a human reader.",
     "version": "0.0.1",
     "author": "Qianxun Chen",
     "background":
@@ -24,17 +24,16 @@
     "browser_action":
     {
         "default_icon":
-        {
-            "16": "img/icon_16.png",
-             "128": "img/icon_128.png"
+        {    
+            "38": "img/icon_38_on.png"
         },
         "default_title": "net://maku",
         "default_popup": "menu.html"
     },
     "icons":
     {
-        "16": "img/icon_16.png",
         "128": "img/icon_128.png"
+        
     },
     "minimum_chrome_version": "38.0",
     "permissions": [

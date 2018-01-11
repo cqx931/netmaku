@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     net://maku
-    Copyright (C) 2017 Qianxun Chen
+    Copyright (C) 2017-2018 cqx931
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,75 +16,91 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see {http://www.gnu.org/licenses/}.
 
+    https://github.com/cqx931/netmaku
+
 *******************************************************************************/
+
+var danmaku = [
+    "xxxxxxxxxxxxxxxxxxxxxxxxx",
+    "yyyyyyyyyyyyyyyyyyyy",
+    "zzzzzzz"
+];
+
+var fakeTweets = [
+    "Butterfly effect ?? @Marco_P_Shite",
+    "Estaba haciendo la fila en el super y una nena le dice al cajero &#34;Ling en inglés como es ? &#34; Y el pibe le dice los nombres en chino son todos iguales. Los nenes chiquitos tienen que dejar de consumir menos cosas yanquis, creo....",
+    "Have you heard of the #butterflyeffect pic.twitter.com/AM3uKhoARU",
+    "BUTTERFLY EFFECT (初回限定盤 2CD＋DVD) [楽天] https://a.r10.to/hrrfXc ",
+    "[おすすめ] BUTTERFLY EFFECT (初回限定盤 2CD＋DVD) [楽天] https://a.r10.to/hrrfXc ",
+    "its just an interesting phenomenon not that i speak of much novelty concepts LOL this is why i’m a huge fan of the butterfly effect & i continue talking gibberish",
+    "for this life I cannot change↵Travis Scott ~ Butterfly Effect",
+    "Now Live!: Travis Scott - Butterfly Effect (Listen Now On http://www.powerjammerz.com )",
+    "Butterfly effect",
+    "I try not to begrudge anyone anything they want to spend their hard earned money on.  But when you are buying $1700 dollar socks, you have too much money. Buy the $700 dollar model and donate the rest to charity.  Just sayin’.",
+    "New favourite: Travis Scott / Butterfly Effect http://www.deezer.com/track/363750201  #deezer",
+    "I’ve rewatched the butterfly effect a few times and like the first time my mind was somewhere else but that movie is great ",
+    "Se o ano que vem for igual a esse eu me mato na moral",
+    "Esse comercial da Riachuello tá tão lindo",
+    "Eu enfatizo a ideia de ter alguém na minha vida, amar e respeitar a pessoa, igual nos votos, ainda sonho em passar o resto da minha vida com uma única pessoa, sonho que o sonho de alguém seja o mesmo que o meu, e que seja a pessoa certa",
+    "But hands down HANDS DOWN the best song to have released this whole year is Butterfly Effect by @trvisXX no brainer.",
+    " and the packers losing to the browns today, i done caused the butterfly effect ",
+    "EU NASCI NO SÉCULO ERRADO !!!!",
+    "@QuavoStuntin release butterfly effect remix already ",
+    "Se vcs tem irmãos, nunca se separem dele, meu irmão era meu melhor amigo, agr ele nem olha mais na minha cara :("
+];
+
+var dbug = false,
+    testInterface = true;
+
+var settings = {
+    disabled: false,
+    firstrun: true,
+    backgroundOverlay: false,
+    hideAllDanmaku: false,
+    opacity: 100,
+    maxEntries: 100
+}
+
+var channel = null,
+    url_filter_obj = { 'urls': ['*://*/*'] },
+    trafficBuffer = [];
+
+/*******************************************************************************/
+
+chrome.runtime.onInstalled.addListener(function() {
+    // console.log("firstInstall");
+});
+
+chrome.runtime.onStartup.addListener(function() {
+    getUserSettingsFromLocalStorage();
+});
+
+function getUserSettingsFromLocalStorage() {
+    chrome.storage.local.get("userSettings", function(result) {
+        settings = result['userSettings'];
+        if (dbug) console.log("getUsersettingsFromStorage", settings);
+    });
+}
+
+/*******************************************************************************/
+
 $(function() {
-    // Placeholder
-    var danmaku = [
-        "xxxxxxxxxxxxxxxxxxxxxxxxx",
-        "yyyyyyyyyyyyyyyyyyyy",
-        "zzzzzzz"
-    ];
-
-    var fakeTweets = [
-        "Butterfly effect ?? @Marco_P_Shite",
-        "Estaba haciendo la fila en el super y una nena le dice al cajero &#34;Ling en inglés como es ? &#34; Y el pibe le dice los nombres en chino son todos iguales. Los nenes chiquitos tienen que dejar de consumir menos cosas yanquis, creo....",
-        "Have you heard of the #butterflyeffect pic.twitter.com/AM3uKhoARU",
-        "BUTTERFLY EFFECT (初回限定盤 2CD＋DVD) [楽天] https://a.r10.to/hrrfXc ",
-        "[おすすめ] BUTTERFLY EFFECT (初回限定盤 2CD＋DVD) [楽天] https://a.r10.to/hrrfXc ",
-        "its just an interesting phenomenon not that i speak of much novelty concepts LOL this is why i’m a huge fan of the butterfly effect & i continue talking gibberish",
-        "for this life I cannot change↵Travis Scott ~ Butterfly Effect",
-        "Now Live!: Travis Scott - Butterfly Effect (Listen Now On http://www.powerjammerz.com )",
-        "Butterfly effect",
-        "I try not to begrudge anyone anything they want to spend their hard earned money on.  But when you are buying $1700 dollar socks, you have too much money. Buy the $700 dollar model and donate the rest to charity.  Just sayin’.",
-        "New favourite: Travis Scott / Butterfly Effect http://www.deezer.com/track/363750201  #deezer",
-        "I’ve rewatched the butterfly effect a few times and like the first time my mind was somewhere else but that movie is great ",
-        "Se o ano que vem for igual a esse eu me mato na moral",
-        "Esse comercial da Riachuello tá tão lindo",
-        "Eu enfatizo a ideia de ter alguém na minha vida, amar e respeitar a pessoa, igual nos votos, ainda sonho em passar o resto da minha vida com uma única pessoa, sonho que o sonho de alguém seja o mesmo que o meu, e que seja a pessoa certa",
-        "But hands down HANDS DOWN the best song to have released this whole year is Butterfly Effect by @trvisXX no brainer.",
-        " and the packers losing to the browns today, i done caused the butterfly effect ",
-        "EU NASCI NO SÉCULO ERRADO !!!!",
-        "@QuavoStuntin release butterfly effect remix already ",
-        "Se vcs tem irmãos, nunca se separem dele, meu irmão era meu melhor amigo, agr ele nem olha mais na minha cara :("
-    ];
-
-
-    var dbug = true,
-        testInterface = true;
-
-    var settings = {
-        disable: false,
-        firstrun: true,
-        backgroundOverlay: false,
-        hideDanmaku: false,
-        hideTop: false,
-        hideScrolling: false,
-        hideBottom: false
-    }
-
-    var channel = null,
-        url_filter_obj = { 'urls': ['*://*/*'] },
-        trafficBuffer = [];
 
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
-
-            if (request.what === "hideDanmaku") {
-                if (dbug) console.log("[MENU:hide danmaku]", sender);
+            if (request.what && request.what.indexOf("change") === 0) {
+                if (dbug) console.log("[MENU:" + request.name, request.value);
+                changeUserSettings(request.name, request.value);
+                // tell contentscript
                 if (channel) channel.postMessage({
-                    what: "hideDanmaku"
-                });
-            } else if (request.what === "changeOpacity") {
-                if (channel) channel.postMessage({
-                    what: "changeOpacity",
+                    what: request.name,
                     value: request.value
                 });
-            } else if (request.what === "backgroundOverlay") {
-                //change setting
-                if (channel) channel.postMessage({
-                    what: "backgroundOverlay",
-                    visible: request.visible
-                });
+            } else if (request.what === "userSettings") {
+                if (dbug) console.log("getUserSettings", settings);
+                sendResponse(settings);
+            } else if (request.what === "disableNetMaku") {
+                settings.disabled = request.value;
             }
         });
 
@@ -166,10 +182,50 @@ $(function() {
 
     /*******************************************************************************/
 
-    function setIcon(active) {
-        // TODO
-        var icon = disabled ? 'img/disable' : 'img/icon';
-        chrome.browserAction.setIcon({ 'path': chrome.extension.getURL(icon) }, function() {});
+
+
+    function changeUserSettings(name, value) {
+
+        if (typeof name !== 'string' || name === '') {
+            return;
+        }
+
+        if (value === undefined) {
+            return settings[name];
+        }
+
+        // Change -- but only if the user setting actually exists.
+        var mustSave = settings[name] !== undefined && value !== settings[name];
+        if (mustSave) {
+            settings[name] = value;
+        }
+        if (dbug) console.log("save to storage", settings);
+        chrome.storage.local.set({
+            'userSettings': settings
+        });
+
+        // Post-change
+        switch (name) {
+            case 'disabled':
+                reloadContentScript();
+                setIcon(value);
+                break;
+            default:
+                break;
+        }
+
+    };
+    
+    function reloadContentScript() {
+         if (channel)
+            channel.postMessage({
+                what: "reload"
+            });
+    }
+    function setIcon(disabled) {
+        var iconPath = { '48': disabled ? 'img/icon_38_off.png' : 'img/icon_38_on.png' };
+        if (dbug) console.log("setIcon", iconPath);
+        chrome.browserAction.setIcon({ 'path': iconPath }, function() {});
     }
 
     function processTraffic(d) {

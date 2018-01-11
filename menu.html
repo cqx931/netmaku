@@ -5,51 +5,57 @@
     <link rel="stylesheet" href="css/menu.css">
 </head>
 
-<body>
+<body class="onload">
+    <div id="makuBox">
+        <a href="https://github.com/cqx931/netmaku" target="new">
+            <div id="logo">
+                <span>net://</span>
+                <br><span>maku</span></div>
+        </a>
+        <div class="onoffswitch">
+            <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch" checked>
+            <label class="onoffswitch-label" for="myonoffswitch">
+                <span class="onoffswitch-inner"></span>
+                <span class="onoffswitch-switch"></span>
+            </label>
+        </div>
+    </div>
+    <h5>Danmaku settings</h5>
     <div class="settings">
-        <label class="checkGroup" id="settingBackground">Background overlay
+        <!--  <label class="checkGroup" id="disableNetMaku">Diable NetMaku
             <input type="checkbox">
             <span class="checkmark"></span>
-        </label>
-        <label class="checkGroup" id="settingTopComments">Hide All Comments
-            <input type="checkbox">
+        </label> -->
+        <label class="checkGroup" id="backgroundOverlay">Background overlay
+            <input type="checkbox" name="backgroundOverlay">
             <span class="checkmark"></span>
         </label>
-        <label class="checkGroup" id="settingTopComments">Hide Top Comments
-            <input type="checkbox">
-            <span class="checkmark"></span>
-        </label>
-        <label class="checkGroup" id="settingTopComments">Hide Scrolling Comments
-            <input type="checkbox">
-            <span class="checkmark"></span>
-        </label>
-        <label class="checkGroup" id="settingTopComments">Hide Bottom Comments
-            <input type="checkbox">
-            <span class="checkmark"></span>
-        </label>
+        Maximum entries
+        <input type="radio" id="max50" name="radio-group" value="50">
+        <label for="max50">50</label>
+        <input type="radio" id="max100" name="radio-group" value="100">
+        <label for="max100">100</label>
+        <input type="radio" id="max200" name="radio-group" value="200">
+        <label for="max200">200</label>
         <ul>
             <li>Opacity <span id="currentValue"></span>
                 <div id="slidecontainer">
                     <input type="range" min="1" max="100" value="100" class="slider" id="opacity">
-                   
                 </div>
             </li>
             <li></li>
             <li></li>
         </ul>
-        <div title="hide" class="button">
+        <!--  <div title="hide" class="button">
             <span>hide</span>
         </div>
-        <!-- <div title="disable" class="button hide">
-            <span>⃠</span>
-        </div> -->
         <div title="show" class="button hide">
-        </div>
+        </div> -->
     </div>
-    <a href="">
-        <p id="logo">net://
-            <br>maku</p>
-    </a>
+    <!--     <div class="switch">
+    <div>on</div>
+    <div>off</div>
+    </div> -->
     <script src="js/jquery.min.js"></script>
     <script src="js/menu.js"></script>
 </body>

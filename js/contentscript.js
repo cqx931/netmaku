@@ -1,7 +1,7 @@
 /*******************************************************************************
 
     net://maku
-    Copyright (C) 2017 Qianxun Chen
+    Copyright (C) 2017-2018 Qianxun Chen
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,11 +16,13 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see {http://www.gnu.org/licenses/}.
 
+    https://github.com/cqx931/netmaku
+
 *******************************************************************************/
 
 'use strict';
 
-var dbug = true;
+var dbug = false;
 var port = chrome.runtime.connect({ name: "mycontentscript" });
 
 var SEARCH_ENGINES = ['^(www\.)*google\.((com\.|co\.|it\.)?([a-z]{2})|com)$', '^(www\.)*bing\.(com)$', 'search\.yahoo\.com$'];
@@ -38,22 +40,12 @@ var colorPalette = {
 var netMakuLogo = "            _         ____              _          \n           | |  _    / / /             | |         \n _ __   ___| |_(_)  / / / __ ___   __ _| | ___   _ \n| '_ \\ / _ \\ __|   / / / '_ ` _ \\ / _` | |/ / | | |\n| | | |  __/ |_ _ / / /| | | | | | (_| |   <| |_| |\n|_| |_|\\___|\\__(_)_/_/ |_| |_| |_|\\__,_|_|\\_\\\\__,_|";
 
 $('head').ready(function() {
-    initDanmaku();
-    generateColorPalette();
-
-    // Step 1: show meta
-    showMetaDanmaku(document);
-
-    // Step 2: traffic
-    askTrafficData();
-    // put all your jQuery goodness in here.
+    //if the current url is not chrome page
+    loadDanmaku();
 });
 
 
 $(function() {
-
-
-
     // Step 3: console (TODO)
 
     // Step 4: Ask background for twitter content
@@ -64,9 +56,24 @@ $(function() {
 
 });
 
-
 /*******************************************************************************/
 
+function loadDanmaku() {
+     chrome.runtime.sendMessage({ what: "userSettings" }, function(settings) {
+        if (dbug) console.log("userSettingsReceived", settings);
+        // if netmaku already exist, remove
+        $("#netmaku").remove();
+        if (settings.disabled) return;
+
+        initDanmaku(settings.maxEntries, settings.opacity, settings.backgroundOverlay);
+        generateColorPalette();
+
+        // Step 1: show meta
+        showMetaDanmaku(document);
+        // Step 2: traffic
+        askTrafficData();
+    });
+}
 
 function sendOutKeywordsFeedback(keywords, mode) {
     if (dbug) console.log("[Keywords from:" + mode + "]", keywords);
@@ -99,18 +106,18 @@ function showMetaDanmaku(document) {
 
         for (var i in entries) {
             var entry = entries[i];
-            console.log(entry.length, entry);
-            // TMP
-            if (entry.length > 60) {
-                entries[i] = entry.substr(0,60);
-            }
-            //     if (entry.indexOf(".?!,") > -1) {
-            //         console.log(entry);
-            //         var split = entry.split(/[,.?;!]/),
-            //             index = entries.indexOf(entry);
-            //         array.splice(index,1);
-            //         entries.concat(split);
+            // console.log(entry.length, entry);
+            // // TMP
+            // if (entry.length > 60) {
+            //     entries[i] = entry.substr(0,60);
             // }
+            // //  if (entry.indexOf(".?!,") > -1) {
+            // //         console.log(entry);
+            // //         var split = entry.split(/[,.?;!]/),
+            // //             index = entries.indexOf(entry);
+            // //         array.splice(index,1);
+            // //         entries.concat(split);
+            // // }
         }
         inject_topComments(entries, { extra: "d_meta" });
     }
@@ -120,19 +127,26 @@ function showMetaDanmaku(document) {
 function generateTrafficDanmaku(traffic) {
     var entries = [],
         headers;
-    entries.push(traffic.method + ":" + traffic.type);
-    // entries.push(traffic.url); //?
-    headers = traffic.requestHeaders != undefined ? traffic.requestHeaders : traffic.responseHeaders;
-    if (headers != undefined) {
-        for (var i in headers) {
-            if (headers[i].name === "Cookie") entries.push("Cookie")
-            else if (headers[i].name.indexOf("X-") === 0 && headerList.indexOf(headers[i].name) < 0) {
-                //log unconventional header
-                entries.push(headers[i].value);
+    
+    // NOT IN USE
+    var processHeaders = function() {
+        if (headers != undefined) {
+            for (var i in headers) {
+                if (headers[i].name === "Cookie") entries.push("Cookie")
+                else if (headers[i].name.indexOf("X-") === 0 && headerList.indexOf(headers[i].name) < 0) {
+                    //log unconventional header
+                    entries.push(headers[i].value);
+                }
+                // console.log(headers[i].name, headers[i].value);
             }
-            // console.log(headers[i].name, headers[i].value);
         }
     }
+  
+    var content = glitch(traffic.method + ":" + traffic.type);
+    entries.push(content);
+    // entries.push(traffic.url); // ?
+    headers = traffic.requestHeaders != undefined ? traffic.requestHeaders : traffic.responseHeaders;
+    // processHeaders();
 
     var settings = { extra: "d_traffic" },
         type = traffic.type.toLowerCase();
@@ -144,13 +158,20 @@ function generateTrafficDanmaku(traffic) {
 function askTrafficData() {
     port.postMessage({
         what: "getTraffic",
-
     });
-
 }
 
+function generateColorPalette() {
+    for (var color in colorPalette) {
+        colorPalette[color] = getRandomColor();
+    }
+    console.log("[Color]", colorPalette);
+}
+
+/*******************************************************************************/
+/***************** Not In USE *******************/
 function processTweets(tweets) {
-    if (dbug) console.log("[Recevied Tweets]")
+    if (dbug) console.log("[Recevied Tweets]");
     inject_flyingComments(tweets);
 }
 
@@ -165,17 +186,13 @@ function getKeywordsFromPage(location) {
     if (keywords != undefined) {
         mode = "search";
     } else {
-
         keywords = $('meta[name=keywords]').attr("content");
-
         if (keywords != undefined) {
-            // Case 2
-            // Get meta keywords
+            // Case 2 : Get meta keywords
             keywords = keywords.substr(0, keywords.indexOf(','));
             mode = "meta";
         } else {
-            // Case 3
-            // From text content
+            // Case 3 : From text content
             keywords = getKeywordsFromText(getTextFromHTML());
         }
     }
@@ -263,12 +280,6 @@ function getKeywordsFromText(str) {
     return items.slice(0, 10);
 }
 
-function generateColorPalette() {
-    for (var color in colorPalette) {
-        colorPalette[color] = getRandomColor();
-    }
-    console.log("[Color]", colorPalette);
-}
 
 function keysValues(href) {
 
@@ -314,6 +325,89 @@ function hello() {
     // });
 }
 
+/*******************************************************************************/
+/*** SETTINGS ***/
+function backgroundOverlay(state) {
+    console.log("background - function", state);
+    if (state)
+      $("#netmaku").css("background","rgba(0,0,0,.3)");
+    else 
+      $("#netmaku").css("background","rgba(0,0,0,0)");
+}
+
+function hideAllDanmaku(state) {
+    console.log("hide - function");
+    if (state)
+        $("#netmaku").css("display","none");
+    else 
+        $("#netmaku").css("display","block");
+}
+
+function changeOpacity(value) {
+    console.log("changeOpacity", value * 0.01);
+     $("#netmaku").css("opacity",value * 0.01);
+}
+/*******************************************************************************/
+/** GLITCH **************************
+    1.Switcher
+    GET:IMAGE
+    IMAGE:GET
+
+    2.Punctuater
+    GET:script
+    G.E.T:s.c.r.i.p.t.
+
+    3.Silencer: 2~3 random silence "_"
+*************************************/
+
+function glitch(danmaku) {
+    var p = Math.floor(Math.random() * 10);
+    switch (p) {
+        case 1:
+            return switcher(danmaku);
+            break;
+        case 2:
+            return punctuater(danmaku);
+            break;
+        case 3:
+            return silencer(danmaku);
+            break;
+        default:
+            return danmaku;
+    }
+}
+
+function switcher(danmaku) {
+  var parts = danmaku.split(":");
+  if (parts.length > 1) danmaku = parts[1] + ":" + parts[0];
+  return danmaku;
+}
+
+function punctuater(danmaku) {
+  var newDanmaku = "";
+  for (var i = 0; i < danmaku.length; i++) {
+     var c = danmaku.charAt(i);
+     if ( c!= ":") {
+        if ( i === danmaku.length -1 || (i < danmaku.length -1 && danmaku.charAt(i+1) != ":")) {
+            c = c + ".";
+        } 
+     }
+     newDanmaku += c
+        
+  }
+  return newDanmaku;
+}
+
+function silencer(danmaku) {
+    var st = Math.random() > 0.5 ? 2 : 3;
+    for (var i = 0; i < st; i++) {
+        var pos = Math.floor(Math.random() * danmaku.length);
+        danmaku = danmaku.replace(danmaku.charAt(pos), "_");
+    }
+    return danmaku;
+}
+/*******************************************************************************/
+
 port.onMessage.addListener(
     function(message, sender, callback) {
         if (message.what === "tweets") {
@@ -323,11 +417,16 @@ port.onMessage.addListener(
             hello();
         } else if (message.what === "traffic") {
             generateTrafficDanmaku(message.details);
-        } else if (request.what === "hideDanmaku") {
-            hideDanmaku();
-        } else if (request.what === "changeOpacity") {
-            changeOpacity();
-        } else if (request.what === "backgroundOverlay") {
-            backgroundOverlay(request.visible);
+        } else if (message.what === "hideAllDanmaku") {
+            hideAllDanmaku(message.value);
+        } else if (message.what === "opacity") {
+            changeOpacity(message.value);
+        } else if (message.what === "backgroundOverlay") {
+            console.log("background - message");
+            backgroundOverlay(message.value);
+        } else if(message.what === "maxEntries") {
+            maxDanmaku = message.value;
+        } else if (message.what === "reload") {
+            loadDanmaku();
         }
     });
